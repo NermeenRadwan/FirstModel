@@ -1,0 +1,29 @@
+[project]
+name = "first-ml-project"
+version = "0.1.0"
+description = "Breast Cancer classification ML pipeline - from notebook to production"
+readme = "README.md"
+authors = [
+    { name = "NermeenRadwan", email = "nermeenradwan22@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.5.3",
+    "pandas>=3.0.6",
+    "scikit-learn>=1.9.1",
+    "python-dotenv>=1.1.1",
+    "joblib>=1.5.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["production_app"]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.6.2",
+    "ruff>=0.17.0",
+]

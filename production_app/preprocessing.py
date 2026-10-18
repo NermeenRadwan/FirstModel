@@ -6,6 +6,7 @@ from sklearn.base import TransformerMixin
 from sklearn.preprocessing import RobustScaler, StandardScaler
 
 from production_app.logging_config import get_logger
+
 logger = get_logger(__name__)
 
 

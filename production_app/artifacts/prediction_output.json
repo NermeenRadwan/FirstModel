@@ -1,0 +1,15 @@
+{
+  "prediction": 0,
+  "label": "malignant",
+  "probability": 0.9452,
+  "confidence_percentage": "94.52%",
+  "risk_level": "High Risk",
+  "probabilities": {
+    "malignant": 0.9452,
+    "benign": 0.0548
+  },
+  "clinical_recommendation": "High risk of malignancy detected. Recommend urgent biopsy confirmation and oncology specialist consultation.",
+  "features_analyzed": 18,
+  "model_version": "0.1.0",
+  "timestamp": "2026-10-18T01:47:00Z"
+}

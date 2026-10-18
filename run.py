@@ -3,7 +3,8 @@
 import argparse
 import sys
 
-from production_app.main import run_prediction_pipeline, run_training_pipeline
+from production_app.model_service import run_prediction_pipeline
+from production_app.training import run_training_pipeline
 
 
 def parse_args() -> argparse.Namespace:

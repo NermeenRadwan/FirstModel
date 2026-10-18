@@ -10,10 +10,7 @@ def load_data():
     """Load the Breast Cancer dataset."""
     logger.info("Loading Breast Cancer dataset")
 
-    dataset = load_breast_cancer(as_frame=True)
-
-    X = dataset.data
-    y = dataset.target
+    X, y = load_breast_cancer(return_X_y=True, as_frame=True)
 
     logger.info("Dataset loaded successfully: %s rows", len(X))
 
@@ -37,3 +34,4 @@ def split_data(X, y, test_size=0.2, random_state=42):
     )
 
     return X_train, X_test, y_train, y_test
+

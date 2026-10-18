@@ -13,6 +13,9 @@ dependencies = [
     "scikit-learn>=1.9.1",
     "python-dotenv>=1.1.1",
     "joblib>=1.5.1",
+    "fastapi>=0.143.3",
+    "uvicorn>=0.54.0",
+    "streamlit>=1.66.0",
 ]
 
 [build-system]
@@ -27,3 +30,7 @@ dev = [
     "pre-commit>=4.6.2",
     "ruff>=0.17.0",
 ]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"

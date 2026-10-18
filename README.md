@@ -109,10 +109,18 @@ First-ML-project/
 │   ├── logging_config.py       # Centralized logging configuration & reusable loggers
 │   ├── data.py                 # Dataset loading and stratified train/test split
 │   ├── preprocessing.py        # Reusable transformers preventing data leakage
-│   ├── training.py             # Pipeline definition and model training
+│   ├── training.py             # Complete training pipeline and model fitting
 │   ├── evaluation.py           # Metric calculation (accuracy, precision, recall, F1, CM)
-│   ├── model_service.py        # Serialization (joblib), artifact reloading, prediction
-│   └── main.py                 # Orchestration of training and prediction workflows
+│   ├── model_service.py        # Serialization (joblib), artifact reloading, prediction pipeline
+│   ├── schemas.py              # Pydantic schemas for REST API validation
+│   ├── main.py                 # FastAPI application with all REST API endpoints
+│   ├── api.py                  # Compatibility re-export module
+│   ├── ui/
+│   │   ├── __init__.py         # Package marker
+│   │   └── streamlit.py        # Streamlit interactive web dashboard
+│   └── artifacts/
+│       ├── metrics.json        # Saved evaluation metrics
+│       └── prediction_output.json # Sample prediction response payload
 ├── models/
 │   └── model.joblib            # Persisted trained pipeline artifact
 ├── run.py                      # Application entry point CLI
@@ -176,6 +184,50 @@ uv run python run.py train
 uv run python run.py predict
 ```
 *Loads the serialized pipeline from disk and predicts on input samples without retraining.*
+
+#### Option D: Launch FastAPI REST Server
+Start the production FastAPI server:
+```bash
+uv run uvicorn production_app.main:app --reload --host 127.0.0.1 --port 8000
+```
+- **Interactive Swagger Documentation**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- **Health Check**: [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)
+
+Example prediction using `curl`:
+```bash
+curl -X POST "http://127.0.0.1:8000/predict" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "features": {
+         "mean texture": 10.38,
+         "mean compactness": 0.2776,
+         "mean concavity": 0.3001,
+         "mean concave points": 0.1471,
+         "radius error": 1.0950,
+         "area error": 153.40,
+         "compactness error": 0.04904,
+         "concave points error": 0.01587,
+         "fractal dimension error": 0.006193,
+         "worst radius": 25.38,
+         "worst texture": 17.33,
+         "worst perimeter": 184.60,
+         "worst area": 2019.0,
+         "worst smoothness": 0.1622,
+         "worst concavity": 0.7119,
+         "worst concave points": 0.2654,
+         "worst symmetry": 0.4601,
+         "worst fractal dimension": 0.11890
+       }
+     }'
+```
+
+#### Option E: Launch Streamlit Web UI
+Launch the interactive clinical dashboard:
+```bash
+uv run streamlit run production_app/ui/streamlit.py
+```
+- **Local URL**: [http://localhost:8501](http://localhost:8501)
+- **Features**: Interactive biomarker sliders, 1-click clinical presets (Benign/Malignant/Borderline), real-time probability distribution gauges, relative biomarker comparison bar charts, and JSON report export.
 
 ---
 

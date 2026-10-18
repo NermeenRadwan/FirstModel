@@ -1,5 +1,7 @@
 """Model evaluation and metrics reporting."""
 
+from typing import Any
+
 import pandas as pd
 from sklearn.metrics import (
     accuracy_score,
@@ -16,7 +18,7 @@ from production_app.logging_config import get_logger
 logger = get_logger(__name__)
 
 
-def evaluate_model(pipeline: Pipeline,X_test: pd.DataFrame,y_test: pd.Series) -> dict[str, float]:
+def evaluate_model(pipeline: Pipeline, X_test: pd.DataFrame, y_test: pd.Series) -> dict[str, Any]:
     logger.info("Evaluating model on %d test samples", len(X_test))
     y_pred = pipeline.predict(X_test)
     acc = float(accuracy_score(y_test, y_pred))

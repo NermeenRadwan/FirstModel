@@ -2,11 +2,31 @@
 
 import os
 from dataclasses import dataclass
-
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
+SELECTED_FEATURES = [
+    "mean texture",
+    "mean compactness",
+    "mean concavity",
+    "mean concave points",
+    "radius error",
+    "area error",
+    "compactness error",
+    "concave points error",
+    "fractal dimension error",
+    "worst radius",
+    "worst texture",
+    "worst perimeter",
+    "worst area",
+    "worst smoothness",
+    "worst concavity",
+    "worst concave points",
+    "worst symmetry",
+    "worst fractal dimension",
+]
 
 @dataclass(frozen=True)
 class Settings:
@@ -26,3 +46,4 @@ def load_settings() -> Settings:
         test_size=float(os.getenv("TEST_SIZE", "0.2")),
         random_seed=int(os.getenv("RANDOM_SEED", "42")),
     )
+

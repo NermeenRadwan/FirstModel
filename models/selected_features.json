@@ -1,0 +1,42 @@
+{
+  "method": "Recursive Feature Elimination with Cross-Validation (RFECV)",
+  "estimator": "LogisticRegression(random_state=42, max_iter=1000)",
+  "scoring": "f1",
+  "cv_folds": 5,
+  "original_features_count": 30,
+  "selected_features_count": 18,
+  "selected_features": [
+    "mean texture",
+    "mean compactness",
+    "mean concavity",
+    "mean concave points",
+    "radius error",
+    "area error",
+    "compactness error",
+    "concave points error",
+    "fractal dimension error",
+    "worst radius",
+    "worst texture",
+    "worst perimeter",
+    "worst area",
+    "worst smoothness",
+    "worst concavity",
+    "worst concave points",
+    "worst symmetry",
+    "worst fractal dimension"
+  ],
+  "dropped_features": [
+    "mean radius",
+    "mean perimeter",
+    "mean area",
+    "mean smoothness",
+    "mean symmetry",
+    "mean fractal dimension",
+    "texture error",
+    "perimeter error",
+    "smoothness error",
+    "concavity error",
+    "symmetry error",
+    "worst compactness"
+  ]
+}

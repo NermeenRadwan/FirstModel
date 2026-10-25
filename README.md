@@ -77,22 +77,36 @@ The end-to-end pipeline follows a strict, leak-free design:
 
 ---
 
-## 5. Evaluation Results
+## 5. Feature Selection Research & Evaluation Results
 
+### Feature Selection Technique Families Comparison
+| Family | Mechanism | Example | Key Strength | Limitation |
+| :--- | :--- | :--- | :--- | :--- |
+| **Filter** | Statistical scores ranking features independently of model fitting | ANOVA F-test, Pearson correlation, `SelectKBest` | Fast, computationally lightweight, model-agnostic | Ignores feature interactions and model-specific nuances |
+| **Wrapper** *(Chosen)* | Evaluates feature subsets iteratively by training an estimator | **RFECV** (Recursive Feature Elimination with CV) | Captures feature dependencies, optimizes target metric directly | Computationally intensive |
+| **Embedded** | Feature selection performed intrinsically during model training | L1 / Lasso regularization, Tree-based Gini importance | Balances model complexity and feature selection simultaneously | Tied strictly to algorithms with built-in regularization |
+
+*Rationale for Choosing Wrapper (RFECV)*: The Wisconsin Diagnostic dataset has strong multicollinearity among cell nuclei dimensions (e.g., radius, perimeter, and area). RFECV with 5-fold cross-validation systematically eliminated 12 redundant features without degrading diagnostic performance.
+
+### Baseline vs. Selected Features Model Comparison
 Evaluated on the independent test split (114 hold-out samples, 20% stratified test size):
 
-| Metric | Score |
-| :--- | :--- |
-| **Accuracy** | **98.25%** |
-| **Precision** | **98.61%** |
-| **Recall** | **98.61%** |
-| **F1-Score** | **98.61%** |
+| Metric | Baseline Model (All 30 Features) | Selected Model (18 Features) | Δ Change |
+| :--- | :---: | :---: | :---: |
+| **Accuracy** | 98.25% | **99.12%** | **+0.87%** |
+| **Precision** | 98.61% | **98.63%** | **+0.02%** |
+| **Recall** | 98.61% | **100.00%** | **+1.39%** |
+| **F1-Score** | 98.61% | **99.31%** | **+0.70%** |
+| **Feature Count** | 30 | **18** | **-40% complexity** |
 
-### Confusion Matrix
+### Selected 18 Features (Preserved Order):
+`mean texture`, `mean compactness`, `mean concavity`, `mean concave points`, `radius error`, `area error`, `compactness error`, `concave points error`, `fractal dimension error`, `worst radius`, `worst texture`, `worst perimeter`, `worst area`, `worst smoothness`, `worst concavity`, `worst concave points`, `worst symmetry`, `worst fractal dimension`.
+
+### Confusion Matrix (18 Features):
 ```
                      Predicted Malignant (0)   Predicted Benign (1)
 Actual Malignant (0)           41                         1
-Actual Benign (1)               1                        71
+Actual Benign (1)               0                        72
 ```
 
 ---
@@ -115,14 +129,19 @@ First-ML-project/
 │   ├── schemas.py              # Pydantic schemas for REST API validation
 │   ├── main.py                 # FastAPI application with all REST API endpoints
 │   ├── api.py                  # Compatibility re-export module
-│   ├── ui/
-│   │   ├── __init__.py         # Package marker
-│   │   └── streamlit.py        # Streamlit interactive web dashboard
-│   └── artifacts/
-│       ├── metrics.json        # Saved evaluation metrics
-│       └── prediction_output.json # Sample prediction response payload
+│   └── ui/
+│       ├── __init__.py         # Package marker
+│       └── streamlit.py        # Streamlit interactive web dashboard module
 ├── models/
-│   └── model.joblib            # Persisted trained pipeline artifact
+│   ├── model.joblib            # Persisted trained pipeline artifact
+│   ├── metrics.json            # Saved evaluation metrics
+│   └── selected_features.json  # Recorded selected and dropped feature lists
+├── tests/
+│   ├── test_model.py           # Model artifact loading and prediction tests
+│   └── test_api.py             # Endpoint tests (/health, /predict, 422, 503)
+├── streamlit_app.py            # FastAPI Streamlit HTTP client UI
+├── Dockerfile                  # Container definition for FastAPI backend
+├── .dockerignore               # Docker build exclusions
 ├── run.py                      # Application entry point CLI
 ├── .env.example                # Template for environment configuration
 ├── .gitignore                  # Git exclusions (.venv, caches, artifacts, secrets)
@@ -221,17 +240,51 @@ curl -X POST "http://127.0.0.1:8000/predict" \
      }'
 ```
 
-#### Option E: Launch Streamlit Web UI
+#### Option E: Launch Streamlit Web UI (HTTP Client)
 Launch the interactive clinical dashboard:
 ```bash
-uv run streamlit run production_app/ui/streamlit.py
+uv run streamlit run streamlit_app.py
 ```
 - **Local URL**: [http://localhost:8501](http://localhost:8501)
+- **Architecture**: Acts strictly as a client making HTTP POST requests to the FastAPI backend service; does not load or retrain models locally.
 - **Features**: Interactive biomarker sliders, 1-click clinical presets (Benign/Malignant/Borderline), real-time probability distribution gauges, relative biomarker comparison bar charts, and JSON report export.
+
+#### Option F: Build and Run Docker API Container
+Build the production Docker image and serve the FastAPI application inside a container:
+```bash
+# 1. Build the Docker image
+docker build -t breast-cancer-api:latest .
+
+# 2. Run the container with port mapping 8000:8000
+docker run -d --name cancer-api -p 8000:8000 breast-cancer-api:latest
+
+# 3. Verify healthcheck endpoint on mapped port
+curl http://127.0.0.1:8000/health
+
+# 4. Stop and remove the container
+docker stop cancer-api && docker rm cancer-api
+```
+
+#### Option G: Run Automated Pytest Suite
+Run the test suite verifying model artifact loading, feature order validation, and API endpoint behavior:
+```bash
+uv run pytest -v
+```
 
 ---
 
-## 8. Code Quality & Pre-commit
+## 8. API Contract & Validation Rules
+
+| Endpoint | Method | Expected Input | Success Response | Error Behavior |
+| :--- | :--- | :--- | :--- | :--- |
+| `/` | `GET` | None | `HTTP 200` {"message": "..."} | N/A |
+| `/health` | `GET` | None | `HTTP 200` {"status": "healthy", "model_loaded": true} | N/A |
+| `/check-model`| `GET` | None | `HTTP 200` {"message": "Model is ready"} | `HTTP 503` if model file missing |
+| `/predict` | `POST` | Dict of 18 features OR list of 18 floats | `HTTP 200` with prediction, probability, clinical recommendation | `HTTP 422` on missing/extra/malformed features; `HTTP 503` if model unready |
+
+---
+
+## 9. Code Quality & Pre-commit
 
 Format and lint the codebase using Ruff:
 ```bash

@@ -2,8 +2,8 @@
 
 import os
 from dataclasses import dataclass
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -28,6 +28,7 @@ SELECTED_FEATURES = [
     "worst fractal dimension",
 ]
 
+
 @dataclass(frozen=True)
 class Settings:
     app_env: str
@@ -46,4 +47,3 @@ def load_settings() -> Settings:
         test_size=float(os.getenv("TEST_SIZE", "0.2")),
         random_seed=int(os.getenv("RANDOM_SEED", "42")),
     )
-

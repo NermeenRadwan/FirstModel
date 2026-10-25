@@ -38,21 +38,24 @@ class PredictionRequest(BaseModel):
     )
 
     model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "features": EXAMPLE_FEATURES_DICT
-            }
-        }
+        json_schema_extra={"example": {"features": EXAMPLE_FEATURES_DICT}}
     )
+
 
 class PredictionResponse(BaseModel):
     prediction: int = Field(..., description="0 for malignant, 1 for benign")
     label: str = Field(..., description="Diagnostic prediction label")
     probability: float = Field(..., description="Confidence score between 0 and 1")
-    confidence_percentage: str = Field(..., description="Confidence formatted as percentage")
+    confidence_percentage: str = Field(
+        ..., description="Confidence formatted as percentage"
+    )
     risk_level: str = Field(..., description="Clinical risk category")
-    probabilities: dict[str, float] = Field(..., description="Probability per diagnostic class")
-    clinical_recommendation: str = Field(..., description="Actionable next step recommendation")
+    probabilities: dict[str, float] = Field(
+        ..., description="Probability per diagnostic class"
+    )
+    clinical_recommendation: str = Field(
+        ..., description="Actionable next step recommendation"
+    )
 
     model_config = ConfigDict(
         json_schema_extra={

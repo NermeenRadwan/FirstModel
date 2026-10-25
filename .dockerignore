@@ -1,0 +1,28 @@
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Secrets and local environment files
+.env
+.env.*
+!.env.example
+
+# Version control
+.git/
+.gitignore
+
+# Caches and temporary files
+__pycache__/
+*.py[cod]
+*$py.class
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.DS_Store
+
+# Development, notebooks, and test files not needed in production container
+tests/
+notebooks/
+.pre-commit-config.yaml

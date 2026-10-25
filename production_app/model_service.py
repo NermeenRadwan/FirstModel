@@ -92,7 +92,7 @@ def run_prediction_pipeline(
     if sample_data is None:
         logger.info("No sample data provided; loading 3 test samples from dataset")
         X, _ = load_data()
-        sample_data = X[SELECTED_FEATURES].head(3)
+        sample_data = X[SELECTED_FEATURES]
 
     predictions = predict(model, sample_data)
     logger.info("Prediction completed: %s", predictions.tolist())

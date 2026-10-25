@@ -86,9 +86,21 @@ def predict(request: PredictionRequest):
             detail="Model is not loaded. Ensure the model has been trained and saved.",
         )
 
-    # If sent as a named dictionary, extract values in REQUIRED_FEATURES order
+    # If sent as a named dictionary, strictly validate all required features are present and no extra features exist
     if isinstance(request.features, dict):
-        values = [request.features.get(col, 0.0) for col in REQUIRED_FEATURES]
+        missing = set(REQUIRED_FEATURES) - set(request.features.keys())
+        extra = set(request.features.keys()) - set(REQUIRED_FEATURES)
+        if missing or extra:
+            error_details = []
+            if missing:
+                error_details.append(f"Missing required features: {sorted(missing)}")
+            if extra:
+                error_details.append(f"Unexpected extra features: {sorted(extra)}")
+            raise HTTPException(
+                status_code=422,
+                detail="; ".join(error_details),
+            )
+        values = [request.features[col] for col in REQUIRED_FEATURES]
         input_df = pd.DataFrame([values], columns=REQUIRED_FEATURES)
     else:
         if len(request.features) != len(REQUIRED_FEATURES):
